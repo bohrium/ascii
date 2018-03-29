@@ -12,9 +12,12 @@
 
 int main(int argc, char** argv) {
     if (argc != 3) { std::cout << "Argument Error!"; return 0; }
+    init_thresholds("alpha.bmp", 8);
+
     Bitmap BMP, BMP2, BMP3;
     BMP.read_from(argv[1]);
-    contrast(BMP, BMP2, 0.9, 2.0);
+    contrast(BMP, BMP2, 1.0, 2.0);
+    //contrast(BMP, BMP2, 1.0, 0.5);
     BMP2.write_to("images/_contrasted.bmp");
     stretch(BMP2, BMP3);
     BMP3.write_to("images/_stretched.bmp");

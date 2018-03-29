@@ -8,16 +8,56 @@
 #ifndef ASCII_H
 #define ASCII_H
 
-#include <fstream>
 #include "Bitmap.h"
+#include <fstream>
+#include <algorithm>
+#include <iostream>
 
-const int types = 9;
-char asciis[] = " .!itmITM"; // 9 types
-int thresholds[] = {0, 32, 64, 96, 128, 160, 192, 224, 256};
+//const int types = 9;
+//char asciis[] = " .!itmITM"; // 9 types
+//int thresholds[] = {0, 32, 64, 96, 128, 160, 192, 224, 256};
+
+const int types = 95;
+char asciis[] = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"; 
+int thresholds[95];
+
+void init_thresholds(char const* in_name, int spacing) {
+    Bitmap alpha;
+    alpha.read_from(in_name);
+    for (int i=0; i!=types; ++i) {
+        thresholds[i]=0; 
+    } 
+    for (int c=0; c!=alpha.dims.width; ++c) {
+        int i = c/spacing;
+        for (int r=0; r!=alpha.dims.height; ++r) {
+            thresholds[i] += 255 - alpha.data[r][c].R;
+        }
+    } 
+
+    std::sort(asciis, asciis+types, [](int a, int b) {
+        return thresholds[a-' '] < thresholds[b-' '];
+    });
+
+    int max = 0;
+    for (int i=0; i!=types; ++i) {
+        max = max < thresholds[i] ? thresholds[i] : max; 
+    } 
+    for (int i=0; i!=types; ++i) {
+        thresholds[i] = (255 * thresholds[i])/max; 
+    } 
+
+    for (int i=0; i!=types; ++i) {
+        std::cout << asciis[i] << "\t";
+    } std::cout << std::endl; 
+    for (int i=0; i!=types; ++i) {
+        std::cout << thresholds[asciis[i]-' '] << "\t";
+    } 
+
+}
 
 static int index(double value) {
     for(int i=0; i<types; ++i) {
-        if(thresholds[i]>value) {
+        if(thresholds[asciis[i]-' ']>value) {
             return i;
         }
     }
@@ -37,7 +77,7 @@ void translate(const Bitmap& bmp, char const* out_name ) {
             val_err += value(bmp.data[r][c]);
             int ind = index(val_err);
             std::fputc(asciis[ind], ascii);
-            val_err -= thresholds[ind];
+            val_err -= thresholds[asciis[ind]-' '];
         }
         std::fputc('\n', ascii);
     }
