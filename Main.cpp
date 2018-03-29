@@ -14,10 +14,10 @@ int main(int argc, char** argv) {
     if (argc != 3) { std::cout << "Argument Error!"; return 0; }
     Bitmap BMP, BMP2, BMP3;
     BMP.read_from(argv[1]);
-    contrast(BMP, BMP2);
+    contrast(BMP, BMP2, 0.9, 2.0);
     BMP2.write_to("images/_contrasted.bmp");
     stretch(BMP2, BMP3);
     BMP3.write_to("images/_stretched.bmp");
-    //translate(BMP2, argv[2]);
+    translate(BMP3, argv[2]);
     return 0;
 }

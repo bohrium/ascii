@@ -56,13 +56,13 @@ void stretch(const Bitmap& bmp, Bitmap& bmp2) {
     }
 }
 
-void contrast(const Bitmap& bmp, Bitmap& bmp2) {
+void contrast(const Bitmap& bmp, Bitmap& bmp2, float a, float b) {
     bmp2.allocate({bmp.dims.height, bmp.dims.width});
     for(int r=0; r!=bmp.dims.height; ++r) {
         for(int c=0; c!=bmp.dims.width; ++c) {
-            bmp2.data[r][c].R = 0;2*bmp.data[r][c].R;
-            bmp2.data[r][c].G = 0;2*bmp.data[r][c].G;
-            bmp2.data[r][c].B = 0;2*bmp.data[r][c].B;
+            bmp2.data[r][c].R = 0;
+            bmp2.data[r][c].G = 0;
+            bmp2.data[r][c].B = 0;
             int sum = 0;
             for (int dr=-1; dr!=2; ++dr) {
                 if (!(0<=r+dr && r+dr<bmp.dims.height)) { continue; }
@@ -74,9 +74,13 @@ void contrast(const Bitmap& bmp, Bitmap& bmp2) {
                     ++sum;
                 }
             }
-            bmp2.data[r][c].R = (2*sum*bmp.data[r][c].R + bmp2.data[r][c].R)/sum;
-            bmp2.data[r][c].G = (2*sum*bmp.data[r][c].G + bmp2.data[r][c].G)/sum;
-            bmp2.data[r][c].B = (2*sum*bmp.data[r][c].B + bmp2.data[r][c].B)/sum;
+            bmp2.data[r][c].R = a*(bmp.data[r][c].R-255/2.0) + b*(bmp.data[r][c].R+bmp2.data[r][c].R/sum)/2 + 255/2.0;
+            bmp2.data[r][c].G = a*(bmp.data[r][c].G-255/2.0) + b*(bmp.data[r][c].G+bmp2.data[r][c].G/sum)/2 + 255/2.0;
+            bmp2.data[r][c].B = a*(bmp.data[r][c].B-255/2.0) + b*(bmp.data[r][c].B+bmp2.data[r][c].B/sum)/2 + 255/2.0;
+
+            bmp2.data[r][c].R = bmp2.data[r][c].R < 0 ? 0 : bmp2.data[r][c].R > 255 ? 255 : bmp2.data[r][c].R;
+            bmp2.data[r][c].G = bmp2.data[r][c].G < 0 ? 0 : bmp2.data[r][c].G > 255 ? 255 : bmp2.data[r][c].G;
+            bmp2.data[r][c].B = bmp2.data[r][c].B < 0 ? 0 : bmp2.data[r][c].B > 255 ? 255 : bmp2.data[r][c].B;
         }
     }
 }
